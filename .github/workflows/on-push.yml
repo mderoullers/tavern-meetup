@@ -29,8 +29,8 @@ jobs:
     #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pip install pytest
-        pip install tavern
-        pip install pytest-sugar
-        pip install pytest-html==1.22.0
+        sudo pip install pytest
+        sudo pip install pytest-html==1.22.0
+        sudo pip install tavern
+        sudo pip install pytest-sugar
         sudo python -m pytest health-check/tests
