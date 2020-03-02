@@ -1,0 +1,15 @@
+---
+name: Common variables for tests
+description:
+  This file contains the common variables for tests (such as URLs, authentications, etc.).
+
+variables:
+  env: dev
+  beer-api:
+    url: http://localhost:8090/api/beers
+    user: admin
+    pwd: admin
+  food-api:
+    url: http://localhost:8080/foods
+    user: admin
+    pwd: admin

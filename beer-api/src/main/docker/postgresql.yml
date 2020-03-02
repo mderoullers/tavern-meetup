@@ -1,0 +1,11 @@
+version: '2'
+services:
+  beer_api-postgresql:
+    image: postgres:12.1
+    # volumes:
+    #     - ~/volumes/jhipster/beer_api/postgresql/:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=beer_api
+      - POSTGRES_PASSWORD=
+    ports:
+      - 5432:5432

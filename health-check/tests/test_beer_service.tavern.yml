@@ -1,0 +1,88 @@
+---
+test_name: Check beer service is up
+
+stages:
+  - name: check that beer-api is secured
+
+    request: &beer_api_no_basic
+      url: "{beer-api.url}"
+      method: GET
+      verify: false
+
+    response:
+      status_code: 401
+      body: 
+        title: "Unauthorized"
+
+  - name: get the list of beers
+
+    request: &beer_api
+      <<: *beer_api_no_basic
+      auth:
+        - "{beer-api.user}"
+        - "{beer-api.pwd}"
+
+    response:
+      status_code: 200
+      body: !anylist
+      save:
+        body:
+          number_of_beers: "length(@)"
+
+  - name: add a beer
+
+    request:
+      <<: *beer_api
+      method: POST
+      json:
+        name: new-beer
+        brewery: new-brewery
+        price: 3
+
+    response:
+      status_code: 201
+      body:
+        name: new-beer
+        brewery: new-brewery
+        price: 3
+      save:
+        body:
+          new-beer-id: id
+            
+  - name: get the new beer
+    
+    request: 
+      <<: *beer_api
+      url: "{beer-api.url}/{new-beer-id}"
+
+    response:
+      status_code: 200
+      body:
+        name: new-beer
+        brewery: new-brewery
+        price: 3
+
+  - name: check there's one more beer on the list
+
+    request: *beer_api
+
+    response:
+      status_code: 200
+      verify_response_with:
+        function: tavern.testutils.helpers:validate_content
+        extra_kwargs:
+          comparisons:
+            - jmespath: "length(@)"
+              operator: "greater_than"
+              expected: !int "{number_of_beers}"
+
+  - name: delete new-beer
+
+    request:
+      <<: *beer_api
+      url: "{beer-api.url}/{new-beer-id}"
+      method: DELETE
+
+    response:
+      status_code: 204
+      body: {}

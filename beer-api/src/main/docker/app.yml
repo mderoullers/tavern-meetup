@@ -1,0 +1,16 @@
+version: '2'
+services:
+  beer_api-app:
+    image: beer_api
+    environment:
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+      - SPRING_PROFILES_ACTIVE=prod,swagger
+      - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://beer_api-postgresql:5432/beer_api
+      - JHIPSTER_SLEEP=30 # gives time for other services to boot before the application
+    ports:
+      - 8090:8080
+  beer_api-postgresql:
+    extends:
+      file: postgresql.yml
+      service: beer_api-postgresql

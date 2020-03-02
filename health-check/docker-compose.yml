@@ -1,0 +1,28 @@
+---
+version: '3.4'
+
+services:
+  tavern:
+    image: tavern-sanity-check:0.1
+    build:
+      context: .
+      args:
+        - TAVERNVER=0.34.0
+    network_mode: host
+    volumes:
+      # The folder that our integration tests are in
+      - ./tests:/tests
+      # If you have anything in your pytest configuration it will also need mounting
+      # here then pointing to with the -c flag to pytest
+    command:
+      - python
+      - -m
+      - pytest
+      # Point to any global configuration files
+      #- --tavern-global-cfg
+      #- /integration_tests/local_urls.yaml
+      # And any other flags you want to pass
+      #- -p
+      #- no:logging
+      # And then point to the folder we mounted above
+      - /tests

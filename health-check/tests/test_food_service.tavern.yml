@@ -1,0 +1,23 @@
+---
+test_name: Check food service is up
+
+stages:
+  - name: get the food list
+
+    request:
+      url: "{food-api.url}"
+      method: GET
+      verify: false
+      auth:
+        - "{food-api.user}"
+        - "{food-api.pwd}"
+
+    response:
+      status_code: 200
+      body:
+        - name: Welsh
+          price: 10
+        - name: Carbonade flamande
+          price: 15
+        - name: Ch'ti burger
+          price: 12

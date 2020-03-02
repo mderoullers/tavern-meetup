@@ -1,0 +1,40 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "tech.ippon.beer_api"
+    },
+    "jhipsterVersion": "6.7.0",
+    "applicationType": "monolith",
+    "baseName": "beer_api",
+    "packageName": "tech.ippon.beer_api",
+    "packageFolder": "tech/ippon/beer_api",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "ehcache",
+    "enableHibernateCache": false,
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "h2Disk",
+    "prodDatabaseType": "postgresql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "ZjZkNmRhZmIyMzI2YjViMDMzZGRmYjE5MmQ0N2NhN2M1ZDFiYjgyMjk5MDQxYTg5YTQ2NzA4ODM2MTA0ODUzNWYzOTBiYzM0ZWM0M2JhM2IzODVhNjU0OWMzMjQ0NjM3OWY1ODBhNTU5ODQ4NjcwOTNjMDVlMjQ3MmMzZDFhZTM=",
+    "embeddableLaunchScript": false,
+    "useSass": true,
+    "clientPackageManager": "npm",
+    "clientFramework": "angularX",
+    "clientTheme": "none",
+    "clientThemeVariant": "",
+    "creationTimestamp": 1581499283400,
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": false,
+    "blueprints": []
+  }
+}
