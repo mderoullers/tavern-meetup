@@ -33,5 +33,4 @@ jobs:
         sudo pip install pytest-html==1.22.0
         sudo pip install tavern
         sudo pip install pytest-sugar
-        sudo cd health-check
         sudo python -m pytest tests
