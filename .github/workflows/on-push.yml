@@ -33,4 +33,5 @@ jobs:
         pip install tavern
         pip install pytest-sugar
         pip install pytest-html==1.22.0
+        ls -l
         pytest /tests
