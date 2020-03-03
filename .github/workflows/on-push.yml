@@ -34,7 +34,7 @@ jobs:
     # Add maven cache
     - uses: actions/cache@v1
       with:
-        path: ~beer-api/.m2/repository
+        path: ~/beer-api/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
