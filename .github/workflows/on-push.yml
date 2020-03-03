@@ -20,7 +20,7 @@ jobs:
         java-version: 11
     - name: Package Beer-service
       run: |
-        mvn clean install --file=beer-api/pom.xml
+        mvn -Pprod -DskipTests verify jib:dockerBuild --file=beer-api/pom.xml
     # - name: GitHub Action for Maven
     #   uses: LucaFeger/action-maven-cli@1.1.0
     #   args: -Pprod verify jib:dockerBuild --file beer-api/pom.xml
