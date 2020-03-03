@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  setup-build-publish-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,15 +16,42 @@ jobs:
       uses: actions/checkout@v2
     - uses: olegtarasov/get-tag@v2
       id: tagName
+
+    # Setup Java and Maven
     - name: Install Java and Maven
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Package Beer-service
+
+    # Setup gcloud CLI
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '281.0.0'
+        service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+    
+    # Configure docker to use the gcloud command-line tool as a credential helper
+    - run: |
+        # Set up docker to authenticate
+        # via gcloud command-line tool.
+        gcloud auth configure-docker
+
+    # Build the Docker image
+    - name: Build Beer-service
       run: |
         mvn -Pprod -DskipTests verify jib:dockerBuild --file=beer-api/pom.xml
-        docker tag beer_api grc.io/tavern-meetup/beer-service:$GIT_TAG_NAME
+        docker tag beer_api grc.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
     
+    # Push the Docker image to Google Container Registry
+    - name: Publish Beer-service
+      run: |
+        docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
+
+    # Deploy the Docker image to the GKE cluster
+    - name: Deploy
+      run: |
+        gcloud components install beta && gcloud beta run deploy ${{ secrets.GCLOUD_APP_NAME_BEER }} --quiet --image eu.gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }} --project ${{ secrets.GCLOUD_PROJECT }} --region europe-west1 --platform managed
     # - name: Publish to Registry
     #   uses: HurricanKai/Publish-Docker-Github-Action@master
     #   if: contains(github.ref, 'refs/tags/v')
@@ -37,18 +64,20 @@ jobs:
     # - name: GitHub Action for Maven
     #   uses: LucaFeger/action-maven-cli@1.1.0
     #   args: -Pprod verify jib:dockerBuild --file beer-api/pom.xml
+    
 
-    - name: Deploy service to Cloud Run
-      uses: stefda/action-cloud-run@1.0.0
-      with:
-        image: grc.io/tavern-meetup/beer-service:$GIT_TAG_NAME
-        service: beer-service
-        project: tavern-meetup
-        region: europe-west1
-        # env: [path-to-env-file]
-        service key: ${{ secrets.GCLOUD_AUTH }}
+    # - name: Deploy service to Cloud Run
+    #   uses: stefda/action-cloud-run@1.0.0
+    #   with:
+    #     image: grc.io/tavern-meetup/beer-service:$GIT_TAG_NAME
+    #     service: beer-service
+    #     project: tavern-meetup
+    #     region: europe-west1
+    #     # env: [path-to-env-file]
+    #     service key: ${{ secrets.GCLOUD_AUTH }}
 
-  test:   
+  test:
+    needs: setup-build-publish-deploy   
     runs-on: ubuntu-latest
 
     steps:
