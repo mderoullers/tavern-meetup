@@ -23,6 +23,7 @@ jobs:
     
     - name: Package Beer-service
       run: |
+        ./beer-api/mvnw -Pprod clean verify -DskipTests
         ./beer-api/mvnw -Pprod verify jib:dockerBuild
 
       
