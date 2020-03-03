@@ -41,17 +41,17 @@ jobs:
     - name: Build Beer-service
       run: |
         mvn -Pprod -DskipTests verify jib:dockerBuild --file=beer-api/pom.xml
-        docker tag beer_api grc.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
+        docker tag beer_api grc.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}
     
     # Push the Docker image to Google Container Registry
     - name: Publish Beer-service
       run: |
-        docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
+        docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}
 
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |
-        gcloud components install beta && gcloud beta run deploy ${{ secrets.GCLOUD_APP_NAME_BEER }} --quiet --image eu.gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }} --project ${{ secrets.GCLOUD_PROJECT }} --region europe-west1 --platform managed
+        gcloud components install beta && gcloud beta run deploy ${{ secrets.GCLOUD_APP_NAME_BEER }} --quiet --image gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }} --project ${{ secrets.GCLOUD_PROJECT }} --region europe-west1 --platform managed
     # - name: Publish to Registry
     #   uses: HurricanKai/Publish-Docker-Github-Action@master
     #   if: contains(github.ref, 'refs/tags/v')
