@@ -20,17 +20,31 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-    # - name: Lint with flake8
-    #   run: |
-    #     pip install flake8
-    #     # stop the build if there are Python syntax errors or undefined names
-    #     flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-    #     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-    #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
+    
+    - name: Package Beer-service
       run: |
-        sudo pip install pytest
-        sudo pip install pytest-html==1.22.0
-        sudo pip install tavern
-        sudo pip install pytest-sugar
-        sudo python -m pytest health-check/tests
+        ./beer-api/mvnw -Pprod verify jib:dockerBuild
+
+      
+    # - name: GitHub Action for Maven
+    #   uses: LucaFeger/action-maven-cli@1.1.0
+    #   args: -Pprod verify jib:dockerBuild --file beer-api/pom.xml
+
+    # - name: Deploy service to Cloud Run
+    #   uses: stefda/action-cloud-run@1.0.0
+    #   with:
+    #     image: gcr.io/[your-project]/[image]
+    #     service: [your-service]
+    #     project: [your-project]
+    #     region: [gcp-region]
+    #     env: [path-to-env-file]
+    #     service key: ${{ secrets.GCLOUD_AUTH }}
+
+
+    # - name: Test with Pytest
+    #   run: |
+    #     sudo pip install pytest
+    #     sudo pip install pytest-html==1.22.0
+    #     sudo pip install tavern
+    #     sudo pip install pytest-sugar
+    #     sudo python -m pytest health-check/tests
