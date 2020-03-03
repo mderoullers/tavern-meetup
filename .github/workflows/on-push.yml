@@ -31,12 +31,20 @@ jobs:
         service_account_key: ${{ secrets.GCP_SA_KEY }}
         export_default_credentials: true
     
+    # Add maven cache
+    - uses: actions/cache@v1
+      with:
+        path: ~beer-api/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
     # Configure docker to use the gcloud command-line tool as a credential helper
     - run: |
         # Set up docker to authenticate
         # via gcloud command-line tool.
         gcloud auth configure-docker
-
+  
     # Build the Docker image
     - name: Build Beer-service
       run: |
