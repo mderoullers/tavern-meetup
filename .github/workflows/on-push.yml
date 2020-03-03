@@ -49,9 +49,11 @@ jobs:
     - name: Build Beer-service
       run: |
         mvn -Pprod -DskipTests verify jib:dockerBuild --file=beer-api/pom.xml
-        docker tag beer_api grc.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}
+        # docker tag beer_api grc.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}
+        docker tag beer_api grc.io/tavern-meetup/beer-service
         docker images
-        docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
+        # docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
+        docker push gcr.io/tavern-meetup/beer-service
     
     # Push the Docker image to Google Container Registry
     # - name: Publish Beer-service
