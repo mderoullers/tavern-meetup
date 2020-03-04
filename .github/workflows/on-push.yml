@@ -46,12 +46,11 @@ jobs:
         $content_json
         EOF
         cat key.json
-        # echo ${{ secrets.GCP_SA_KEY }} | base64 -d > key.json
         gcloud auth activate-service-account ${{ secrets.GCP_SA_EMAIL }} --key-file=key.json --project=${{ secrets.GCLOUD_PROJECT }}
-        gcloud iam service-accounts list 
+        # gcloud iam service-accounts list 
         # Set up docker to authenticate
         # via gcloud command-line tool.
-        gcloud auth configure-docker
+        # gcloud auth configure-docker
   
     # Build the Docker image
     - name: Build Beer-service
