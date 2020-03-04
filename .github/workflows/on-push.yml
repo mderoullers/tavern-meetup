@@ -60,11 +60,6 @@ jobs:
         docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:latest
         docker tag gcr.io/$PROJECT_ID/$SERVICE_NAME:latest gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
         docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
-        docker pull postgres
-        docker tag postgres:latest gcr.io/$PROJECT_ID/postgres:latest
-        docker push gcr.io/$PROJECT_ID/postgres:latest
-
-    
 
     # Deploy the Docker image to Cloud Run
     - name: Deploy
@@ -76,7 +71,8 @@ jobs:
             --allow-unauthenticated
 
   test:
-    needs: setup-build-publish-deploy   
+    needs: setup-build-publish-deploy
+    name: Test the contracts
     runs-on: ubuntu-latest
 
     steps:
