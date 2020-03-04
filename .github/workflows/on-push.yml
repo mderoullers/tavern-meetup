@@ -41,7 +41,7 @@ jobs:
 
     # Configure docker to use the gcloud command-line tool as a credential helper
     - run: |
-        content_json=`${{ secrets.GCP_SA_KEY }}`
+        content_json=${{ secrets.GCP_SA_KEY }}
         cat <<EOF > key.json
         $content_json
         EOF
