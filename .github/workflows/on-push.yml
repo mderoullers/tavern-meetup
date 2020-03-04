@@ -48,7 +48,8 @@ jobs:
     # Build the Docker image
     - name: Build Beer-service
       run: |
-        mvn -Pprod -DskipTests verify jib:dockerBuild --file=beer-api/pom.xml
+        gcloud config get-value account
+        # mvn -Pprod -DskipTests verify jib:dockerBuild --file=beer-api/pom.xml
         # docker tag beer_api:latest gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
         # docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
         # docker tag gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
