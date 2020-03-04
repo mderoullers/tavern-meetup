@@ -41,6 +41,9 @@ jobs:
 
     # Configure docker to use the gcloud command-line tool as a credential helper
     - run: |
+        cat ${{ secrets.GCP_SA_KEY }} | base64 -d > key.json
+        gcloud auth activate-service-account ${{ secrets.GCP_SA_EMAIL }} --key-file=key.json --project=${{ secrets.GCLOUD_PROJECT }
+        gcloud iam service-accounts list 
         # Set up docker to authenticate
         # via gcloud command-line tool.
         gcloud auth configure-docker
@@ -48,8 +51,9 @@ jobs:
     # Build the Docker image
     - name: Build Beer-service
       run: |
-        gcloud config set project ${{ secrets.GCLOUD_PROJECT }}
-        gcloud iam service-accounts list 
+        # cat ${{ secrets.GCP_SA_KEY }} | base64 -d > key.json
+        # gcloud auth activate-service-account ${{ secrets.GCP_SA_EMAIL }} --key-file=key.json --project=${{ secrets.GCLOUD_PROJECT }
+        # gcloud iam service-accounts list 
         # mvn -Pprod -DskipTests verify jib:dockerBuild --file=beer-api/pom.xml
         # docker tag beer_api:latest gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
         # docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
