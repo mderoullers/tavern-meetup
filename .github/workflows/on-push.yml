@@ -82,7 +82,7 @@ jobs:
     
 
     - name: Deploy service to Cloud Run
-      uses: stefda/action-cloud-run@1.0.0
+      uses: stefda/action-cloud-run@1.0
       with:
         image: gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
         service: beer-service
