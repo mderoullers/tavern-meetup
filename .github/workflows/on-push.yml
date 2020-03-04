@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ master ]
 
+# Environment variables available to all jobs and steps in this workflow
+env:
+  PROJECT_ID: ${{ secrets.GCLOUD_PROJECT }}
+  RUN_REGION: europe-west1
+  SERVICE_NAME: beer-service
+
 jobs:
   setup-build-publish-deploy:
     runs-on: ubuntu-latest
@@ -27,7 +33,7 @@ jobs:
     - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
         version: '281.0.0'
-        # service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+        service_account_email: ${{ secrets.GCP_SA_EMAIL }}
         service_account_key: ${{ secrets.GCP_SA_KEY }}
         # export_default_credentials: true
     
@@ -39,44 +45,50 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
 
+    # Configure gcloud CLI
+    - name: gcloud Set up
+      run: |
+        gcloud config set project $PROJECT_ID
+
     # Configure docker to use the gcloud command-line tool as a credential helper
-    - run: |
-        content_json=${{ secrets.GCP_SA_KEY }}
-        cat <<EOF > key.json
-        $content_json
-        EOF
-        cat key.json
-        gcloud auth activate-service-account ${{ secrets.GCP_SA_EMAIL }} --key-file=key.json --project=${{ secrets.GCLOUD_PROJECT }}
-        # gcloud iam service-accounts list 
-        # Set up docker to authenticate
-        # via gcloud command-line tool.
-        # gcloud auth configure-docker
+    # - run: |
+    #     content_json=${{ secrets.GCP_SA_KEY }}
+    #     cat <<EOF > key.json
+    #     $content_json
+    #     EOF
+    #     cat key.json
+    #     gcloud auth activate-service-account ${{ secrets.GCP_SA_EMAIL }} --key-file=key.json --project=${{ secrets.GCLOUD_PROJECT }}
+    #     # gcloud iam service-accounts list 
+    #     # Set up docker to authenticate
+    #     # via gcloud command-line tool.
+    #     # gcloud auth configure-docker
   
     # Build the Docker image
-    - name: Build Beer-service
+    - name: Build Beer-service and push image to Google Container Registry
       run: |
-        # cat ${{ secrets.GCP_SA_KEY }} | base64 -d > key.json
-        # gcloud auth activate-service-account ${{ secrets.GCP_SA_EMAIL }} --key-file=key.json --project=${{ secrets.GCLOUD_PROJECT }}
-        gcloud iam service-accounts list 
-        # mvn -Pprod -DskipTests verify jib:dockerBuild --file=beer-api/pom.xml
-        # docker tag beer_api:latest gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
-        # docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
-        # docker tag gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
-        # docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
+        mvn -Pprod -DskipTests verify jib:dockerBuild --file=beer-api/pom.xml
+        docker tag beer_api:latest gcr.io/$PROJECT_ID/$SERVICE_NAME:latest
+        docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:latest
+        docker tag gcr.io/$PROJECT_ID/$SERVICE_NAME:latest gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
+        docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
     
     # Push the Docker image to Google Container Registry
-    - name: Publish Beer-service
-      run: |
-        docker tag beer_api:latest gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
-        docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
-        docker tag gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
-        docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
+    # - name: Publish Beer-service
+    #   run: |
+    #     docker tag beer_api:latest gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
+    #     docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
+    #     docker tag gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
+    #     docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
 
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |
-        gcloud components install beta && gcloud beta run deploy ${{ secrets.GCLOUD_APP_NAME_BEER }} --quiet --image gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME --project ${{ secrets.GCLOUD_PROJECT }} --region europe-west1 --platform managed
-   
+        # gcloud components install beta && gcloud beta run deploy ${{ secrets.GCLOUD_APP_NAME_BEER }} --quiet --image gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME --project ${{ secrets.GCLOUD_PROJECT }} --region europe-west1 --platform managed
+        gcloud run deploy $SERVICE_NAME \
+            --region $RUN_REGION \
+            --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
+            --platform managed
+
     # - name: Publish to Registry
     #   uses: HurricanKai/Publish-Docker-Github-Action@master
     #   if: contains(github.ref, 'refs/tags/v')
