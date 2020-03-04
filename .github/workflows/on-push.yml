@@ -69,6 +69,7 @@ jobs:
             --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
             --platform managed \
             --allow-unauthenticated
+            --port=8080
 
   test:
     needs: setup-build-publish-deploy
