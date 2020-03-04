@@ -52,20 +52,7 @@ jobs:
         gcloud config set project $PROJECT_ID
         gcloud auth configure-docker
 
-    # Configure docker to use the gcloud command-line tool as a credential helper
-    # - run: |
-    #     content_json=${{ secrets.GCP_SA_KEY }}
-    #     cat <<EOF > key.json
-    #     $content_json
-    #     EOF
-    #     cat key.json
-    #     gcloud auth activate-service-account ${{ secrets.GCP_SA_EMAIL }} --key-file=key.json --project=${{ secrets.GCLOUD_PROJECT }}
-    #     # gcloud iam service-accounts list 
-    #     # Set up docker to authenticate
-    #     # via gcloud command-line tool.
-    #     # gcloud auth configure-docker
-  
-    # Build the Docker image
+    # Push the Docker image to Google Container Registry
     - name: Build Beer-service and push image to Google Container Registry
       run: |
         mvn -Pprod -DskipTests verify jib:dockerBuild --file=beer-api/pom.xml
@@ -73,47 +60,20 @@ jobs:
         docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:latest
         docker tag gcr.io/$PROJECT_ID/$SERVICE_NAME:latest gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
         docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
-    
-    # Push the Docker image to Google Container Registry
-    # - name: Publish Beer-service
-    #   run: |
-    #     docker tag beer_api:latest gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
-    #     docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest
-    #     docker tag gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:latest gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
-    #     docker push gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
+        docker pull postgres
+        docker tag postgres:latest gcr.io/$PROJECT_ID/postgres:latest
+        docker push gcr.io/$PROJECT_ID/postgres:latest
 
-    # Deploy the Docker image to the GKE cluster
+    
+
+    # Deploy the Docker image to Cloud Run
     - name: Deploy
       run: |
-        # gcloud components install beta && gcloud beta run deploy ${{ secrets.GCLOUD_APP_NAME_BEER }} --quiet --image gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME --project ${{ secrets.GCLOUD_PROJECT }} --region europe-west1 --platform managed
         gcloud run deploy $SERVICE_NAME \
             --region $RUN_REGION \
             --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
-            --platform managed
-
-    # - name: Publish to Registry
-    #   uses: HurricanKai/Publish-Docker-Github-Action@master
-    #   if: contains(github.ref, 'refs/tags/v')
-    #   with:
-    #     name: grc.io/tavern-meetup/beer-service:$GIT_TAG_NAME
-    #     username: ${{ secrets.DOCKER_USERNAME }}
-    #     password: ${{ secrets.DOCKER_PASSWORD }}
-    #     # registry: grc.io
-    #     tagging: true
-    # - name: GitHub Action for Maven
-    #   uses: LucaFeger/action-maven-cli@1.1.0
-    #   args: -Pprod verify jib:dockerBuild --file beer-api/pom.xml
-    
-
-    # - name: Deploy service to Cloud Run
-    #   uses: stefda/action-cloud-run@1.0
-    #   with:
-    #     image: gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME_BEER }}:$GIT_TAG_NAME
-    #     service: beer-service
-    #     project: tavern-meetup
-    #     region: europe-west1
-    #     # env: [path-to-env-file]
-    #     service key: ${{ secrets.GCP_SA_KEY }}
+            --platform managed \
+            --allow-unauthenticated
 
   test:
     needs: setup-build-publish-deploy   
