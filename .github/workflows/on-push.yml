@@ -50,6 +50,7 @@ jobs:
     - name: gcloud Set up
       run: |
         gcloud config set project $PROJECT_ID
+        gcloud auth configure-docker
 
     # Configure docker to use the gcloud command-line tool as a credential helper
     # - run: |
