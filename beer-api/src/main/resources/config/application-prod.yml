@@ -33,7 +33,7 @@ spring:
       enabled: false
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/beer_api
+    url: jdbc:postgresql://https://postgres-tavern-meetup-e6ngmerdaq-ew.a.run.app:5432/beer_api
     username: beer_api
     password:
     hikari:
