@@ -75,7 +75,7 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --port=8080 \
-            --service-account ${{ secrets.GCP_SA_EMAIL }}
+            --service-account=${{ secrets.GCP_SA_EMAIL }}
 
 
   test:
