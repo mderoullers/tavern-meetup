@@ -68,9 +68,15 @@ jobs:
             --region $RUN_REGION \
             --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
             --platform managed \
+            --allow-unauthenticated
+        gcloud run deploy $SERVICE_NAME \
+            --region $RUN_REGION \
+            --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
+            --platform managed \
             --allow-unauthenticated \
             --port=8080 \
-            --verbosity=debug
+            --service-account ${{ secrets.GCP_SA_EMAIL }}
+
 
   test:
     needs: setup-build-publish-deploy
